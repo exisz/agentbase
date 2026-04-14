@@ -10,7 +10,7 @@ Use `agentfile` CLI for board/card operations. Zero-dependency Node.js CLI suppo
 ## Setup
 
 ```bash
-npm install -g agentfile
+npm install -g @exisz/agentfile
 ```
 
 ## Configuration

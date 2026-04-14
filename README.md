@@ -42,10 +42,10 @@ AI agents interacting with Trello (or any board tool) create **duplicate cards c
 
 ```bash
 # npm (recommended)
-npm install -g agentfile
+npm install -g @exisz/agentfile
 
 # npx (no install)
-npx agentfile help
+npx @exisz/agentfile help
 
 # From source
 git clone https://github.com/exisz/agentfile.git
