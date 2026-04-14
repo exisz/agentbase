@@ -6,7 +6,7 @@ import { readFileSync, existsSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { parseYaml, toYaml } from '../yaml.js';
 import { saveManaged } from '../managed.js';
-import { getAgentfileDir } from '../config.js';
+import { getVibaseDir } from '../config.js';
 import type { ManagedData, ManagedRecord } from '../types.js';
 
 export async function cmdMigrateFromTrelloYaml(
@@ -51,18 +51,18 @@ export async function cmdMigrateFromTrelloYaml(
     }));
   }
 
-  const agentfileDir = getAgentfileDir(configDir);
-  if (!existsSync(agentfileDir)) {
-    mkdirSync(agentfileDir, { recursive: true });
+  const vibaseDir = getVibaseDir(configDir);
+  if (!existsSync(vibaseDir)) {
+    mkdirSync(vibaseDir, { recursive: true });
   }
 
-  saveManaged(agentfileDir, managed);
+  saveManaged(vibaseDir, managed);
 
   console.log(`Migrated ${managed.records?.length || 0} records from ${trelloYamlPath}`);
-  console.log(`Written to ${join(agentfileDir, 'managed.yaml')}`);
+  console.log(`Written to ${join(vibaseDir, 'managed.yaml')}`);
 
   // Create a basic config if none exists
-  const configPath = join(agentfileDir, 'agentfile.yml');
+  const configPath = join(vibaseDir, 'vibase.yml');
   if (!existsSync(configPath)) {
     const configYaml = toYaml({
       vendor: 'trello',

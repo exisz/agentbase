@@ -1,20 +1,19 @@
 <div align="center">
 
 ```
-                           _    __ _ _
-   __ _  __ _  ___ _ __ | |_ / _(_) | ___
-  / _` |/ _` |/ _ \ '_ \| __| |_| | |/ _ \
- | (_| | (_| |  __/ | | | |_|  _| | |  __/
-  \__,_|\__, |\___|_| |_|\__|_| |_|_|\___|
-        |___/
+        _ _
+ __   _(_) |__   __ _ ___  ___
+ \ \ / / | '_ \ / _` / __|/ _ \
+  \ V /| | |_) | (_| \__ \  __/
+   \_/ |_|_.__/ \__,_|___/\___|
 ```
 
-**Agent File — persistent state for AI agents. Zero dependencies.**
+**vibase — vibe-driven database for AI agents. Zero dependencies.**
 
-[![npm](https://img.shields.io/npm/v/@exisz/agentfile)](https://www.npmjs.com/package/@exisz/agentfile)
-[![License](https://img.shields.io/github/license/exisz/agentfile)](LICENSE)
-[![CI](https://img.shields.io/github/actions/workflow/status/exisz/agentfile/ci.yml)](https://github.com/exisz/agentfile/actions)
-[![Node](https://img.shields.io/node/v/agentfile)](https://nodejs.org)
+[![npm](https://img.shields.io/npm/v/@exisz/vibase)](https://www.npmjs.com/package/@exisz/vibase)
+[![License](https://img.shields.io/github/license/exisz/vibase)](LICENSE)
+[![CI](https://img.shields.io/github/actions/workflow/status/exisz/vibase/ci.yml)](https://github.com/exisz/vibase/actions)
+[![Node](https://img.shields.io/node/v/vibase)](https://nodejs.org)
 
 [Installation](#installation) · [Quick Start](#quick-start) · [Commands](#commands) · [Configuration](#configuration) · [Managed Records](#managed-records) · [Contributing](CONTRIBUTING.md)
 
@@ -22,13 +21,13 @@
 
 ---
 
-## Why agentfile?
+## Why vibase?
 
 AI agents interacting with Trello (or any board tool) create **duplicate cards constantly** — they can't remember what they already created. Existing CLIs are vendor-locked, dependency-heavy, or abandoned.
 
-**agentfile** is an agent-first database CLI. One interface, multiple backends, zero vendor lock-in. Its killer feature: **managed records** — a local registry that prevents duplicate creation. Agents upsert by key; agentfile handles the rest.
+**vibase** is a vibe-driven database CLI for AI agents. One interface, multiple backends, zero vendor lock-in. Its killer feature: **managed records** — a local registry that prevents duplicate creation. Agents upsert by key; vibase handles the rest.
 
-| | agentfile | [trello-cli](https://github.com/mheap/trello-cli) | [taskell](https://github.com/smallhadroncollider/taskell) |
+| | vibase | [trello-cli](https://github.com/mheap/trello-cli) | [taskell](https://github.com/smallhadroncollider/taskell) |
 |---|---|---|---|
 | **Language** | TypeScript | TypeScript | Haskell |
 | **Runtime deps** | **0** | Many | Many |
@@ -36,20 +35,20 @@ AI agents interacting with Trello (or any board tool) create **duplicate cards c
 | **Managed records** | ✅ Built-in dedup | ❌ | ❌ |
 | **Agent-safe** | ✅ Upsert by key | ❌ | ❌ |
 | **Snapshot** | ✅ Vendor-agnostic YAML | ❌ | ❌ |
-| **Install** | `npm i -g @exisz/agentfile` | `npm install` | `brew` / stack |
+| **Install** | `npm i -g @exisz/vibase` | `npm install` | `brew` / stack |
 
 ## Installation
 
 ```bash
 # npm (recommended)
-npm install -g @exisz/agentfile
+npm install -g @exisz/vibase
 
 # npx (no install)
-npx @exisz/agentfile help
+npx @exisz/vibase help
 
 # From source
-git clone https://github.com/exisz/agentfile.git
-cd agentfile
+git clone https://github.com/exisz/vibase.git
+cd vibase
 npm install && npm run build && npm link
 ```
 
@@ -58,8 +57,8 @@ npm install && npm run build && npm link
 ### 1. Create a config
 
 ```bash
-mkdir -p .agentfile
-cat > .agentfile/agentfile.yml << 'EOF'
+mkdir -p .vibase
+cat > .vibase/vibase.yml << 'EOF'
 vendor: trello
 trello:
   board_id: "your-board-id"
@@ -77,25 +76,25 @@ export TRELLO_TOKEN="your-trello-token"
 
 ```bash
 # List your boards
-agentfile boards
+vibase boards
 
 # List cards on configured board
-agentfile cards
+vibase cards
 
 # Create a card
-agentfile card:create -l LIST_ID -n "Fix login bug" -d "Users can't log in on mobile"
+vibase card:create -l LIST_ID -n "Fix login bug" -d "Users can't log in on mobile"
 
 # The killer feature — upsert by key (never creates duplicates)
-agentfile upsert --key "sprint-review" -l LIST_ID -n "Sprint Review" -d "Updated notes..."
+vibase upsert --key "sprint-review" -l LIST_ID -n "Sprint Review" -d "Updated notes..."
 # Run again → updates instead of creating a duplicate
-agentfile upsert --key "sprint-review" -l LIST_ID -n "Sprint Review v2" -d "Final notes"
+vibase upsert --key "sprint-review" -l LIST_ID -n "Sprint Review v2" -d "Final notes"
 ```
 
 ### Using Markdown backend (no SaaS needed)
 
 ```bash
-mkdir -p .agentfile
-cat > .agentfile/agentfile.yml << 'EOF'
+mkdir -p .vibase
+cat > .vibase/vibase.yml << 'EOF'
 vendor: markdown
 markdown:
   dir: ./boards
@@ -105,8 +104,8 @@ EOF
 mkdir -p boards/my-project/{todo,in-progress,done}
 
 # Now use the same commands — data lives in local files
-agentfile cards -b my-project
-agentfile card:create -b my-project -l "my-project/todo" -n "Build feature X"
+vibase cards -b my-project
+vibase card:create -b my-project -l "my-project/todo" -n "Build feature X"
 ```
 
 ## Commands
@@ -114,51 +113,51 @@ agentfile card:create -b my-project -l "my-project/todo" -n "Build feature X"
 ### Board Operations
 
 ```bash
-agentfile boards                              # List all boards
-agentfile lists [-b BOARD]                    # List all lists
-agentfile labels [-b BOARD]                   # List labels
+vibase boards                              # List all boards
+vibase lists [-b BOARD]                    # List all lists
+vibase labels [-b BOARD]                   # List labels
 ```
 
 ### Card Operations
 
 ```bash
-agentfile cards [-b BOARD] [-l LIST]          # List cards
-agentfile card CARD_ID                        # Show card details
-agentfile card:create -l LIST -n "Name" [-d "Desc"] [--due DATE] [--label LABEL]
-agentfile card:update CARD_ID [-n "Name"] [-d "Desc"] [--move-to LIST]
-agentfile card:move CARD_ID LIST_ID           # Move card to list
-agentfile card:archive CARD_ID                # Archive card
-agentfile card:comment CARD_ID "text"         # Add comment
+vibase cards [-b BOARD] [-l LIST]          # List cards
+vibase card CARD_ID                        # Show card details
+vibase card:create -l LIST -n "Name" [-d "Desc"] [--due DATE] [--label LABEL]
+vibase card:update CARD_ID [-n "Name"] [-d "Desc"] [--move-to LIST]
+vibase card:move CARD_ID LIST_ID           # Move card to list
+vibase card:archive CARD_ID                # Archive card
+vibase card:comment CARD_ID "text"         # Add comment
 ```
 
 ### Managed Records (the killer feature)
 
 ```bash
 # Upsert: create if key doesn't exist, update if it does
-agentfile upsert --key "fy2025" -l LIST_ID -n "FY2025 Tax" -d "..."
+vibase upsert --key "fy2025" -l LIST_ID -n "FY2025 Tax" -d "..."
 
 # View all managed records
-agentfile managed
+vibase managed
 
 # Sync managed.yaml with remote state
-agentfile sync
+vibase sync
 ```
 
 ### Export & Migration
 
 ```bash
-agentfile snapshot [-b BOARD] [-o FILE]       # Export board to YAML
-agentfile migrate:from-trello-yaml FILE       # Import from old trello.yaml
+vibase snapshot [-b BOARD] [-o FILE]       # Export board to YAML
+vibase migrate:from-trello-yaml FILE       # Import from old trello.yaml
 ```
 
 ## Configuration
 
-### Config file: `.agentfile/agentfile.yml`
+### Config file: `.vibase/vibase.yml`
 
-agentfile searches for config in this order:
-1. `.agentfile/agentfile.yml` in current directory
+vibase searches for config in this order:
+1. `.vibase/vibase.yml` in current directory
 2. Walk up parent directories
-3. `~/.agentfile/agentfile.yml` (global fallback)
+3. `~/.vibase/vibase.yml` (global fallback)
 
 #### Trello vendor
 
@@ -184,10 +183,10 @@ No API keys needed. Data stored as local markdown files with YAML front matter.
 
 ## Managed Records
 
-The managed record registry (`.agentfile/managed.yaml`) is what makes agentfile agent-safe.
+The managed record registry (`.vibase/managed.yaml`) is what makes vibase agent-safe.
 
 ```yaml
-# Auto-maintained by agentfile
+# Auto-maintained by vibase
 board:
   id: "69bdfa32041cfc3a4bc2c7ad"
   name: "My Board"
@@ -207,8 +206,8 @@ records:
 ```
 
 **How it works:**
-1. Agent calls `agentfile upsert --key "my-key" -l LIST -n "Name"`
-2. agentfile checks `managed.yaml` for key `"my-key"`
+1. Agent calls `vibase upsert --key "my-key" -l LIST -n "Name"`
+2. vibase checks `managed.yaml` for key `"my-key"`
 3. **Key exists** → UPDATE the remote record
 4. **Key missing** → CREATE new record + register in `managed.yaml`
 
@@ -216,7 +215,7 @@ No more duplicate cards. Ever.
 
 ## Vendor Adapters
 
-agentfile uses a vendor adapter pattern. Each backend implements the same interface:
+vibase uses a vendor adapter pattern. Each backend implements the same interface:
 
 | Vendor | Backend | Auth | Status |
 |--------|---------|------|--------|
@@ -230,10 +229,10 @@ agentfile uses a vendor adapter pattern. Each backend implements the same interf
 If you're migrating from the old `board` CLI with `trello.yaml` files:
 
 ```bash
-agentfile migrate:from-trello-yaml ./trello.yaml
+vibase migrate:from-trello-yaml ./trello.yaml
 ```
 
-This reads the old format and writes `.agentfile/managed.yaml` + `.agentfile/agentfile.yml`.
+This reads the old format and writes `.vibase/managed.yaml` + `.vibase/vibase.yml`.
 
 ## License
 

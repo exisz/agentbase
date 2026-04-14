@@ -1,5 +1,5 @@
 /**
- * agentfile types — Board, List, Card, Comment, VendorAdapter
+ * vibase types — Board, List, Card, Comment, VendorAdapter
  */
 
 export interface Board {
@@ -54,7 +54,7 @@ export interface ManagedData {
   records?: ManagedRecord[];
 }
 
-export interface AgentfileConfig {
+export interface VibaseConfig {
   vendor: string;
   trello?: {
     board_id: string;

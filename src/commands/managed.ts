@@ -3,11 +3,11 @@
  */
 
 import { loadManaged } from '../managed.js';
-import { getAgentfileDir } from '../config.js';
+import { getVibaseDir } from '../config.js';
 
 export async function cmdManaged(configDir: string): Promise<void> {
-  const agentfileDir = getAgentfileDir(configDir);
-  const managed = loadManaged(agentfileDir);
+  const vibaseDir = getVibaseDir(configDir);
+  const managed = loadManaged(vibaseDir);
 
   if (!managed.records || managed.records.length === 0) {
     console.log('No managed records.');

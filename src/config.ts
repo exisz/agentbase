@@ -1,20 +1,20 @@
 /**
- * Config loader — resolves .agentfile/agentfile.yml
- * Search order: current dir → parent dirs → ~/.agentfile/agentfile.yml
+ * Config loader — resolves .vibase/vibase.yml
+ * Search order: current dir → parent dirs → ~/.vibase/vibase.yml
  */
 
 import { readFileSync, existsSync } from 'node:fs';
 import { join, dirname, resolve } from 'node:path';
 import { homedir } from 'node:os';
 import { parseYaml } from './yaml.js';
-import type { AgentfileConfig } from './types.js';
+import type { VibaseConfig } from './types.js';
 
-const CONFIG_DIR = '.agentfile';
-const CONFIG_FILE = 'agentfile.yml';
+const CONFIG_DIR = '.vibase';
+const CONFIG_FILE = 'vibase.yml';
 
 /**
- * Walk up from `startDir` looking for .agentfile/agentfile.yml.
- * Falls back to ~/.agentfile/agentfile.yml.
+ * Walk up from `startDir` looking for .vibase/vibase.yml.
+ * Falls back to ~/.vibase/vibase.yml.
  */
 export function findConfigPath(startDir?: string): string | null {
   let dir = resolve(startDir || process.cwd());
@@ -36,33 +36,33 @@ export function findConfigPath(startDir?: string): string | null {
 }
 
 /**
- * Load and parse config. Returns the config object and the directory containing .agentfile/.
+ * Load and parse config. Returns the config object and the directory containing .vibase/.
  */
-export function loadConfig(startDir?: string): { config: AgentfileConfig; configDir: string } {
+export function loadConfig(startDir?: string): { config: VibaseConfig; configDir: string } {
   const configPath = findConfigPath(startDir);
   if (!configPath) {
-    console.error('Error: No .agentfile/agentfile.yml found.');
-    console.error('Create one with: mkdir -p .agentfile && echo "vendor: trello" > .agentfile/agentfile.yml');
+    console.error('Error: No .vibase/vibase.yml found.');
+    console.error('Create one with: mkdir -p .vibase && echo "vendor: trello" > .vibase/vibase.yml');
     process.exit(1);
   }
 
   const raw = readFileSync(configPath, 'utf-8');
-  const parsed = parseYaml(raw) as unknown as AgentfileConfig;
+  const parsed = parseYaml(raw) as unknown as VibaseConfig;
 
   if (!parsed.vendor) {
     console.error(`Error: "vendor" not set in ${configPath}`);
     process.exit(1);
   }
 
-  // configDir is the parent of .agentfile/
+  // configDir is the parent of .vibase/
   const configDir = dirname(dirname(configPath));
 
   return { config: parsed, configDir };
 }
 
 /**
- * Get the .agentfile directory path for a given project dir.
+ * Get the .vibase directory path for a given project dir.
  */
-export function getAgentfileDir(projectDir: string): string {
+export function getVibaseDir(projectDir: string): string {
   return join(projectDir, CONFIG_DIR);
 }
