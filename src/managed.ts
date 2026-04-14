@@ -1,5 +1,5 @@
 /**
- * Managed records — load/save .vibase/managed.yaml
+ * Managed records — load/save .agentbase/managed.yaml
  * The killer feature: dedup registry that prevents agents from creating duplicate cards.
  */
 
@@ -11,10 +11,10 @@ import type { ManagedData, ManagedRecord } from './types.js';
 const MANAGED_FILE = 'managed.yaml';
 
 /**
- * Load managed.yaml from .vibase/ directory.
+ * Load managed.yaml from .agentbase/ directory.
  */
-export function loadManaged(vibaseDir: string): ManagedData {
-  const path = join(vibaseDir, MANAGED_FILE);
+export function loadManaged(agentbaseDir: string): ManagedData {
+  const path = join(agentbaseDir, MANAGED_FILE);
   if (!existsSync(path)) {
     return { records: [] };
   }
@@ -25,15 +25,15 @@ export function loadManaged(vibaseDir: string): ManagedData {
 }
 
 /**
- * Save managed.yaml to .vibase/ directory.
+ * Save managed.yaml to .agentbase/ directory.
  */
-export function saveManaged(vibaseDir: string, data: ManagedData): void {
-  const path = join(vibaseDir, MANAGED_FILE);
-  if (!existsSync(vibaseDir)) {
-    mkdirSync(vibaseDir, { recursive: true });
+export function saveManaged(agentbaseDir: string, data: ManagedData): void {
+  const path = join(agentbaseDir, MANAGED_FILE);
+  if (!existsSync(agentbaseDir)) {
+    mkdirSync(agentbaseDir, { recursive: true });
   }
 
-  const header = '# Auto-maintained by vibase. Maps local keys → remote record IDs.\n';
+  const header = '# Auto-maintained by agentbase. Maps local keys → remote record IDs.\n';
   const yaml = toYaml(data);
   writeFileSync(path, header + yaml + '\n', 'utf-8');
 }

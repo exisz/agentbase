@@ -2,17 +2,17 @@
  * Sync command — sync managed.yaml with remote state
  */
 
-import type { VendorAdapter, VibaseConfig } from '../types.js';
+import type { VendorAdapter, AgentbaseConfig } from '../types.js';
 import { loadManaged, saveManaged } from '../managed.js';
-import { getVibaseDir } from '../config.js';
+import { getAgentbaseDir } from '../config.js';
 
 export async function cmdSync(
   adapter: VendorAdapter,
-  config: VibaseConfig,
+  config: AgentbaseConfig,
   configDir: string
 ): Promise<void> {
-  const vibaseDir = getVibaseDir(configDir);
-  const managed = loadManaged(vibaseDir);
+  const agentbaseDir = getAgentbaseDir(configDir);
+  const managed = loadManaged(agentbaseDir);
 
   if (!managed.records || managed.records.length === 0) {
     console.log('No managed records to sync.');
@@ -38,6 +38,6 @@ export async function cmdSync(
     }
   }
 
-  saveManaged(vibaseDir, managed);
+  saveManaged(agentbaseDir, managed);
   console.log(JSON.stringify({ synced: managed.records.length, updated, errors }, null, 2));
 }

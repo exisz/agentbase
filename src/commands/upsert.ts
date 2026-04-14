@@ -3,13 +3,13 @@
  * If key exists in managed.yaml → UPDATE. If not → CREATE + register.
  */
 
-import type { VendorAdapter, VibaseConfig } from '../types.js';
+import type { VendorAdapter, AgentbaseConfig } from '../types.js';
 import { loadManaged, saveManaged, findByKey, registerRecord } from '../managed.js';
-import { getVibaseDir } from '../config.js';
+import { getAgentbaseDir } from '../config.js';
 
 export async function cmdUpsert(
   adapter: VendorAdapter,
-  config: VibaseConfig,
+  config: AgentbaseConfig,
   configDir: string,
   opts: {
     key: string;
@@ -20,8 +20,8 @@ export async function cmdUpsert(
     labels?: string[];
   }
 ): Promise<void> {
-  const vibaseDir = getVibaseDir(configDir);
-  const managed = loadManaged(vibaseDir);
+  const agentbaseDir = getAgentbaseDir(configDir);
+  const managed = loadManaged(agentbaseDir);
   const existing = findByKey(managed, opts.key);
 
   if (existing) {
@@ -37,7 +37,7 @@ export async function cmdUpsert(
     // Update managed record
     existing.name = card.name;
     existing.listId = card.listId;
-    saveManaged(vibaseDir, managed);
+    saveManaged(agentbaseDir, managed);
 
     console.log(JSON.stringify({
       action: 'updated',
@@ -66,7 +66,7 @@ export async function cmdUpsert(
       name: card.name,
       listId: card.listId,
     });
-    saveManaged(vibaseDir, managed);
+    saveManaged(agentbaseDir, managed);
 
     console.log(JSON.stringify({
       action: 'created',

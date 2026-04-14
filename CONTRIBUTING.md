@@ -1,13 +1,13 @@
-# Contributing to vibase
+# Contributing to agentbase
 
-Thanks for your interest in contributing! vibase is a zero-dependency TypeScript CLI, and we'd love your help making it better.
+Thanks for your interest in contributing! agentbase is a zero-dependency TypeScript CLI, and we'd love your help making it better.
 
 ## Development Setup
 
 ```bash
 # Clone
-git clone https://github.com/exisz/vibase.git
-cd vibase
+git clone https://github.com/exisz/agentbase.git
+cd agentbase
 
 # Install dev dependencies
 npm install
@@ -19,7 +19,7 @@ npm run build
 npm link
 
 # Run
-vibase help
+agentbase help
 ```
 
 ## Project Structure
@@ -28,8 +28,8 @@ vibase help
 src/
 ├── index.ts                 # CLI entry point + arg parsing
 ├── types.ts                 # Board, List, Card, VendorAdapter interfaces
-├── config.ts                # Config loader (.vibase/vibase.yml)
-├── managed.ts               # Managed record registry (.vibase/managed.yaml)
+├── config.ts                # Config loader (.agentbase/agentbase.yml)
+├── managed.ts               # Managed record registry (.agentbase/managed.yaml)
 ├── yaml.ts                  # Minimal YAML parser/serializer (zero deps)
 ├── commands/
 │   ├── boards.ts            # boards command
@@ -48,7 +48,7 @@ src/
 
 ## The Golden Rule: Zero Runtime Dependencies
 
-vibase uses **only Node.js built-ins**. No exceptions. This is the project's core differentiator.
+agentbase uses **only Node.js built-ins**. No exceptions. This is the project's core differentiator.
 
 - HTTP? `fetch` (built-in since Node 18)
 - YAML? Custom minimal parser in `yaml.ts`
@@ -101,17 +101,17 @@ refactor: extract vendor adapter interface
 
 ## Reporting Bugs
 
-Use [GitHub Issues](https://github.com/exisz/vibase/issues). Include:
+Use [GitHub Issues](https://github.com/exisz/agentbase/issues). Include:
 
 - Your Node.js version (`node --version`)
-- vibase version (`vibase version`)
+- agentbase version (`agentbase version`)
 - Your OS
 - Full error output
 - Steps to reproduce
 
 ## Requesting Features
 
-Use [GitHub Issues](https://github.com/exisz/vibase/issues). Explain:
+Use [GitHub Issues](https://github.com/exisz/agentbase/issues). Explain:
 
 - What problem does this solve?
 - How do you currently work around it?
