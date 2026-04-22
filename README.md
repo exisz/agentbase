@@ -151,6 +151,25 @@ agentbase snapshot [-b BOARD] [-o FILE]       # Export board to YAML
 agentbase migrate:from-trello-yaml FILE       # Import from old trello.yaml
 ```
 
+### Data Model Templates (plugins)
+
+agentbase boards declare their **data model** via a pinned `🧬 DATA MODEL: <id>` card.
+Templates are pluggable — built-in (`status-pipeline`, `correspondence-versioned`),
+user-local (`~/.agentbase/templates/*.yaml`), or npm packages prefixed `agentbase-template-*`.
+
+```bash
+agentbase template ls                         # list installed templates
+agentbase template info <ID|PATH>             # template details + schema check
+agentbase template scaffold <ID> [-o FILE]    # starter YAML for a new template
+
+agentbase model show     [-b BOARD]           # explain board's data model
+agentbase model validate [-b BOARD]           # check board against template rules
+agentbase model declare  [-b BOARD] -t <ID>   # add the model card to a board
+```
+
+Boards without a declaration are assumed `status-pipeline@0` for backward compat.
+Authoring a new template? See the convention `board-template-plugins`.
+
 ## Configuration
 
 ### Config file: `.agentbase/agentbase.yml`

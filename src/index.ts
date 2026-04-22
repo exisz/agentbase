@@ -37,6 +37,8 @@ import { cmdSync } from './commands/sync.js';
 import { cmdSnapshot } from './commands/snapshot.js';
 import { cmdChecklists, cmdChecklistCreate, cmdChecklistDelete, cmdCheckItemAdd, cmdCheckItemUpdate, cmdCheckItemDelete } from './commands/checklists.js';
 import { cmdMigrateFromTrelloYaml } from './commands/migrate.js';
+import { cmdModelShow, cmdModelValidate, cmdModelDeclare } from './commands/model.js';
+import { cmdTemplateList, cmdTemplateInfo, cmdTemplateScaffold } from './commands/template.js';
 import type { VendorAdapter, AgentbaseConfig } from './types.js';
 import { resolve } from 'node:path';
 
@@ -144,6 +146,12 @@ COMMANDS
   checklist:remove <CHECKLIST_ID> <ITEM_ID>
                                       Remove checklist item
   migrate:from-trello-yaml <FILE>     Import from old trello.yaml
+  model show       [-b BOARD]         Show declared/assumed template for board
+  model validate   [-b BOARD]         Validate board against its template
+  model declare    [-b BOARD] -t ID   Create the 🧬 DATA MODEL card
+  template ls                         List discovered template plugins
+  template info <ID|PATH>             Show template details + schema findings
+  template scaffold <ID> [-o FILE]    Emit a starter template YAML
   version                             Show version
   help                                Show this help
 
@@ -186,6 +194,34 @@ async function main(): Promise<void> {
     }
     await cmdMigrateFromTrelloYaml(file, process.cwd());
     return;
+  }
+
+  // `template` subcommands work without any board config (registry-only).
+  if (command === 'template') {
+    const sub = args[1];
+    const json = hasFlag(args, '--json');
+    switch (sub) {
+      case 'ls':
+      case 'list':
+        cmdTemplateList({ json });
+        return;
+      case 'info': {
+        const idOrPath = args[2];
+        if (!idOrPath) { console.error('Usage: agentbase template info <ID|PATH>'); process.exit(1); }
+        cmdTemplateInfo(idOrPath);
+        return;
+      }
+      case 'scaffold': {
+        const tplId = args[2];
+        if (!tplId) { console.error('Usage: agentbase template scaffold <ID> [-o FILE]'); process.exit(1); }
+        const out = getFlag(args, '-o', '--out');
+        cmdTemplateScaffold(tplId, { out });
+        return;
+      }
+      default:
+        console.error('Usage: agentbase template {ls|info|scaffold} [args]');
+        process.exit(1);
+    }
   }
 
   // All other commands need config + adapter
@@ -390,6 +426,41 @@ async function main(): Promise<void> {
       const itemId = args[2];
       if (!checklistId || !itemId) { console.error('Usage: agentbase checklist:remove <CHECKLIST_ID> <ITEM_ID>'); process.exit(1); }
       await cmdCheckItemDelete(adapter, checklistId, itemId);
+      break;
+    }
+
+    case 'model': {
+      const sub = args[1];
+      const json = hasFlag(args, '--json');
+      switch (sub) {
+        case 'show': {
+          const boardId = getBoardId(config, args);
+          await cmdModelShow(adapter, boardId, { json });
+          break;
+        }
+        case 'validate': {
+          const boardId = getBoardId(config, args);
+          await cmdModelValidate(adapter, boardId, { json });
+          break;
+        }
+        case 'declare': {
+          const boardId = getBoardId(config, args);
+          const tplId = getFlag(args, '-t', '--template');
+          if (!tplId) { console.error('Usage: agentbase model declare -b BOARD -t TEMPLATE_ID'); process.exit(1); }
+          await cmdModelDeclare(adapter, boardId, tplId);
+          break;
+        }
+        default:
+          console.error('Usage: agentbase model {show|validate|declare} [-b BOARD] [-t TEMPLATE]');
+          process.exit(1);
+      }
+      break;
+    }
+
+    case 'template': {
+      // Handled before config load (see above). If we reach here, fall through to error.
+      console.error('internal: template command should have been handled before config load');
+      process.exit(1);
       break;
     }
 
