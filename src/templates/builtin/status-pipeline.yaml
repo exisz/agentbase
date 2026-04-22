@@ -1,0 +1,110 @@
+id: status-pipeline
+version: 1
+name: "Status Pipeline"
+description: |
+  Classic kanban / bug-tracker / sales-CRM model. Each list is a status,
+  each card is a work item. Status changes by moving the card between lists.
+  This is the legacy default for boards without a model declaration.
+
+axes:
+  x:
+    represents: "work items in that status"
+    cardinality: many
+  y:
+    represents: "status states (left-to-right pipeline)"
+    cardinality: many
+    ordered: true
+  z:
+    represents: "current status"
+    location: list-membership
+
+card-storage:
+  mode: single
+
+status-schema:
+  location: list-membership
+  values:
+    - key: backlog
+      emoji: "📥"
+      meaning: "Not yet picked up"
+    - key: todo
+      emoji: "📝"
+      meaning: "Ready to work"
+    - key: in-progress
+      emoji: "🚧"
+      meaning: "Being worked on now"
+    - key: review
+      emoji: "👀"
+      meaning: "Awaiting review / QA"
+    - key: done
+      emoji: "✅"
+      meaning: "Completed"
+    - key: blocked
+      emoji: "❌"
+      meaning: "Blocked / cannot proceed"
+
+required-lists:
+  - id: backlog
+    pattern: "^(📥 )?Backlog|📥 .*"
+    role: status
+    min-count: 0
+    max-count: 1
+  - id: done
+    pattern: "^(✅ )?Done"
+    role: terminal
+    min-count: 0
+    max-count: 1
+
+behaviours:
+  forbid-card-move-between-rounds: false
+  require-model-declaration-card: true
+
+init:
+  lists:
+    - name: "📥 Backlog"
+      pos: 1
+    - name: "📝 To Do"
+      pos: 2
+    - name: "🚧 In Progress"
+      pos: 3
+    - name: "👀 Review"
+      pos: 4
+    - name: "✅ Done"
+      pos: 5
+  cards:
+    - list: "📥 Backlog"
+      name: "🧬 DATA MODEL: status-pipeline (read first)"
+      pos: top
+      desc: |
+        # 🧬 Data Model: Status Pipeline
+
+        This board uses the **status-pipeline** template (the legacy default).
+
+        ## Axes
+        - **Y axis (lists, left→right)**: Status states. Move cards between lists to change status.
+        - **X axis (cards within a list)**: Work items currently in that status.
+        - **Z axis (per-card status)**: Determined by which list the card is in (`list-membership`).
+
+        ## Status values
+        - 📥 backlog       Not yet picked up
+        - 📝 todo          Ready to work
+        - 🚧 in-progress   Being worked on now
+        - 👀 review        Awaiting review / QA
+        - ✅ done          Completed
+        - ❌ blocked       Blocked / cannot proceed
+
+        ## How to use
+        1. New work item → create card in 📥 Backlog
+        2. Pick up work → move to 🚧 In Progress
+        3. Submit for review → move to 👀 Review
+        4. Done → move to ✅ Done
+        5. Stuck → move to ❌ Blocked + comment on card
+
+        ## Why this model
+        Standard kanban; lossy for time-versioned correspondence (use
+        `correspondence-versioned` for that). Use this for engineering boards,
+        bug trackers, sales CRMs, anything where one item has one current state.
+
+        ## Related
+        - Convention: `project-data-model-declaration`
+        - Template spec: agentbase built-in `status-pipeline`

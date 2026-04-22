@@ -1,0 +1,142 @@
+id: correspondence-versioned
+version: 1
+name: "Correspondence-Versioned"
+description: |
+  Round-based collection. Items live in a canonical Library list; each
+  communication round (RFFI #1, RFFI #2, etc) is its own list containing
+  reference cards back to Library items. Per-round status lives on the
+  reference card name prefix; canonical state lives on the Library card.
+
+  Use for: insurance RFFI, grant rounds, academic peer review, multi-round
+  application processes, anything where the SAME item is asked across
+  multiple rounds and you need to answer "what does the third party
+  want THIS round?" without losing item identity across rounds.
+
+axes:
+  x:
+    represents: "items asked in that round"
+    cardinality: many
+  y:
+    represents: "communication rounds + Library"
+    cardinality: many
+    ordered: true
+  z:
+    represents: "per-round submission state"
+    location: card-name-prefix
+
+card-storage:
+  mode: reference
+  canonical-list-pattern: "^📚 Item Library"
+  reference-mechanism: "trello-attachment-url"
+
+status-schema:
+  location: card-name-prefix
+  values:
+    - key: pending
+      emoji: "📥"
+      meaning: "Not yet started"
+    - key: findable
+      emoji: "🔍"
+      meaning: "Agent can find from records"
+    - key: needs-user
+      emoji: "📝"
+      meaning: "User must supply"
+    - key: needs-third-party
+      emoji: "📞"
+      meaning: "Long lead-time external"
+    - key: sent
+      emoji: "📤"
+      meaning: "Submitted, awaiting acknowledgement"
+    - key: accepted
+      emoji: "✅"
+      meaning: "Acknowledged / accepted by counterparty"
+    - key: blocked
+      emoji: "❌"
+      meaning: "Cannot supply / dropped"
+  transitions:
+    - from: pending
+      to: [findable, needs-user, needs-third-party, blocked]
+    - from: [findable, needs-user, needs-third-party]
+      to: [sent, blocked]
+    - from: sent
+      to: [accepted, needs-user]
+
+required-lists:
+  - id: library
+    pattern: "^📚 Item Library"
+    role: canonical-storage
+    min-count: 1
+    max-count: 1
+  - id: round
+    pattern: "^📨 "
+    role: time-bucket
+    min-count: 1
+    max-count: null
+  - id: closed
+    pattern: "^✅ Closed Out"
+    role: terminal
+    min-count: 0
+    max-count: 1
+
+behaviours:
+  forbid-card-move-between-rounds: true
+  require-model-declaration-card: true
+  duplicate-detection-by: canonical-link
+
+init:
+  lists:
+    - name: "📚 Item Library"
+      pos: 1
+    - name: "📨 Original Round"
+      pos: 2
+    - name: "✅ Closed Out"
+      pos: 99
+  cards:
+    - list: "📚 Item Library"
+      name: "🧬 DATA MODEL: correspondence-versioned (read first)"
+      pos: top
+      desc: |
+        # 🧬 Data Model: Correspondence-Versioned
+
+        This board uses the **correspondence-versioned** template, NOT a status pipeline.
+
+        ## Axes
+        - **Y axis (lists, left→right)**: Communication rounds with the counterparty.
+          - 📚 Item Library — canonical home for every deliverable card
+          - 📨 Original Round — what was asked at first contact
+          - 📨 Round #1 / #2 / #3… — each subsequent request
+          - ✅ Closed Out — items no longer requested
+        - **X axis (cards within a round list)**: Items the counterparty asked for in THAT round.
+        - **Z axis (per-card status)**: First emoji of the reference card name (📥📝🔍📞📤✅❌).
+          Canonical state lives on the Library card via a Submission Log section in its description.
+
+        ## Status values (emoji prefix on reference card name)
+        - 📥 pending           Not yet started
+        - 🔍 findable          Agent can find from records
+        - 📝 needs-user        User must supply
+        - 📞 needs-third-party Long lead-time external
+        - 📤 sent              Submitted, awaiting acknowledgement
+        - ✅ accepted          Acknowledged / accepted by counterparty
+        - ❌ blocked           Cannot supply / dropped
+
+        ## How to use
+        1. **New deliverable** → create card in 📚 Item Library only
+        2. **Counterparty asks for it in a round** → add a Trello link/shortcut in the round list
+           (do NOT move the canonical card; do NOT duplicate)
+        3. **You submit** → append a 'Submission Log' line in the Library card desc with date + ref
+        4. **Counterparty acknowledges** → mark accepted in submission log + flip reference emoji to ✅
+        5. **Counterparty drops the ask** → leave the link in the historical round list, do nothing
+           in newer rounds
+        6. **New round arrives** → create new 📨 list with the round date in name; populate by
+           linking existing Library cards (re-asks) + creating new Library cards (new asks)
+
+        ## Why this model
+        Status-pipeline (Inbox/Sent/Acknowledged) loses the answer to "what does the counterparty
+        want THIS round?". Correspondence-versioned makes each round a self-contained checklist
+        while preserving item identity across rounds.
+
+        ## Related
+        - Convention: `board-as-source-of-truth-for-multi-day-collection`
+        - Convention: `board-cards-self-contained`
+        - Convention: `project-data-model-declaration`
+        - Template plugin: agentbase built-in `correspondence-versioned`
